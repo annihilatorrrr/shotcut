@@ -33,7 +33,7 @@ def main():
     usage('No image file given.')
 
   if not os.path.exists(png_file):
-    usage('The image file given (%s) does not exist.' % png_file)
+    usage(f'The image file given ({png_file}) does not exist.')
 
   png_base, extension = os.path.basename(png_file).rsplit('.', 1)
 
@@ -53,7 +53,7 @@ def main():
   for size in sizes:
     name_args = (png_base, size, size)
     resized_base = "%s-%02dx%02d" % name_args
-    resized_name = "%s.png" % resized_base
+    resized_name = f"{resized_base}.png"
     resize_args = (png_file, size, size, resized_name)
     command = 'convert %s -resize %dx%d %s' % resize_args
     err(command)
@@ -65,19 +65,19 @@ def main():
   for depth in depths:
     for size in sizes:
       resized_base = to_map[size]
-      resized_name = "%s.png" % resized_base
+      resized_name = f"{resized_base}.png"
       redepthed_base = "%s-%02d" % (resized_base, depth)
-      redepthed_name = "%s.pnm" % redepthed_base
+      redepthed_name = f"{redepthed_base}.pnm"
       redepth_args = (depth, resized_name, redepthed_name)
       if depth >= 8:
         command = "convert -depth %d %s %s" % redepth_args
       else:
-        command = "convert %s %s" % (resized_name, redepthed_name)
+        command = f"convert {resized_name} {redepthed_name}"
       err(command)
       os.system(command)
       to_delete.append(redepthed_name)
       map_base = "%s-%02d" % (resized_base, depth)
-      map_name = "%s.pam" % map_base
+      map_name = f"{map_base}.pam"
       if depth >= 8:
         colors = 256
         map_args = (colors, redepthed_name, map_name)
@@ -89,7 +89,7 @@ def main():
         open(map_name, 'wb').write(base64.decodestring(win16map))
       to_delete.append(map_name)
       remapped_base = map_base
-      remapped_name = "%s.ppm" % remapped_base
+      remapped_name = f"{remapped_base}.ppm"
       remap_args = (map_name, redepthed_name, remapped_name)
       command = "pnmremap -mapfile=%s -fs %s > %s" % remap_args
       err(command)
@@ -99,14 +99,14 @@ def main():
 
 
   icon_names = " ".join(ico_parts)
-  icon_name = "%s.ico" % png_base
+  icon_name = f"{png_base}.ico"
   icon_args = (icon_names, icon_name)
 
   command = 'ppmtowinicon %s --output %s' % icon_args
   err(command)
   os.system(command)
 
-  err("rm %s" % " ".join(to_delete))
+  err(f'rm {" ".join(to_delete)}')
   for p in to_delete:
     os.remove(p)
 
